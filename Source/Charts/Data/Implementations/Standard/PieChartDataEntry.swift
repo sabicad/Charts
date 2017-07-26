@@ -45,6 +45,16 @@ open class PieChartDataEntry: ChartDataEntry
     /// - parameter value: The value on the y-axis
     /// - parameter label: The label for the x-axis
     /// - parameter icon: icon image
+    /// - parameter sectorImage: image in pie center
+    public convenience init(value: Double, label: String?, icon: NSUIImage?, sectorImage: NSUIImage?)
+    {
+        self.init(value: value, label: label, icon: icon, data: nil)
+        self.sectorImage = sectorImage
+    }
+    
+    /// - parameter value: The value on the y-axis
+    /// - parameter label: The label for the x-axis
+    /// - parameter icon: icon image
     /// - parameter data: Spot for additional data this Entry represents
     public init(value: Double, label: String?, icon: NSUIImage?, data: AnyObject?)
     {
@@ -84,6 +94,7 @@ open class PieChartDataEntry: ChartDataEntry
     // MARK: Data property accessors
     
     open var label: String?
+    open var sectorImage: UIImage?
     
     open var value: Double
     {

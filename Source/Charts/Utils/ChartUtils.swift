@@ -195,6 +195,30 @@ open class ChartUtils
         NSUIGraphicsPopContext()
     }
     
+    internal class func draw(text: String, attributes: [String : AnyObject]?, rect: CGRect, fonts: [UIFont]) {
+        if text.contains("\n") {
+            let fullText = text as NSString
+            
+            let attributedString = NSMutableAttributedString(string: fullText as String, attributes: attributes)
+            
+            let components = text.components(separatedBy: "\n")
+            if components.count > 1 && fonts.count > 1 && components.count == fonts.count {
+                for (index, component) in components.enumerated() {
+                    let range = fullText.range(of: component)
+                    let font = fonts[index]
+                    
+                    attributedString.addAttributes([NSFontAttributeName : font], range: range)
+                }
+                
+                attributedString.draw(with: rect, options: .usesLineFragmentOrigin, context: nil)
+            } else {
+                (text as NSString).draw(with: rect, options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+            }
+        } else {
+            (text as NSString).draw(with: rect, options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        }
+    }
+    
     internal class func drawMultilineText(context: CGContext, text: String, knownTextSize: CGSize, point: CGPoint, attributes: [String : AnyObject]?, constrainedToSize: CGSize, anchor: CGPoint, angleRadians: CGFloat)
     {
         var rect = CGRect(origin: CGPoint(), size: knownTextSize)
@@ -243,10 +267,65 @@ open class ChartUtils
         NSUIGraphicsPopContext()
     }
     
+    
+    internal class func drawMultilineText(context: CGContext, text: String, knownTextSize: CGSize, point: CGPoint, attributes: [String : AnyObject]?, constrainedToSize: CGSize, anchor: CGPoint, angleRadians: CGFloat, fonts:[UIFont])
+    {
+        var rect = CGRect(origin: CGPoint(), size: knownTextSize)
+        
+        NSUIGraphicsPushContext(context)
+        
+        if angleRadians != 0.0
+        {
+            // Move the text drawing rect in a way that it always rotates around its center
+            rect.origin.x = -knownTextSize.width * 0.5
+            rect.origin.y = -knownTextSize.height * 0.5
+            
+            var translate = point
+            
+            // Move the "outer" rect relative to the anchor, assuming its centered
+            if anchor.x != 0.5 || anchor.y != 0.5
+            {
+                let rotatedSize = sizeOfRotatedRectangle(knownTextSize, radians: angleRadians)
+                
+                translate.x -= rotatedSize.width * (anchor.x - 0.5)
+                translate.y -= rotatedSize.height * (anchor.y - 0.5)
+            }
+            
+            context.saveGState()
+            context.translateBy(x: translate.x, y: translate.y)
+            context.rotate(by: angleRadians)
+            
+            draw(text: text, attributes: attributes, rect: rect, fonts: fonts)
+            
+            context.restoreGState()
+        }
+        else
+        {
+            if anchor.x != 0.0 || anchor.y != 0.0
+            {
+                rect.origin.x = -knownTextSize.width * anchor.x
+                rect.origin.y = -knownTextSize.height * anchor.y
+            }
+            
+            rect.origin.x += point.x
+            rect.origin.y += point.y
+            
+            draw(text: text, attributes: attributes, rect: rect, fonts: fonts)
+        }
+        
+        NSUIGraphicsPopContext()
+    }
+    
     internal class func drawMultilineText(context: CGContext, text: String, point: CGPoint, attributes: [String : AnyObject]?, constrainedToSize: CGSize, anchor: CGPoint, angleRadians: CGFloat)
     {
         let rect = text.boundingRect(with: constrainedToSize, options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
         drawMultilineText(context: context, text: text, knownTextSize: rect.size, point: point, attributes: attributes, constrainedToSize: constrainedToSize, anchor: anchor, angleRadians: angleRadians)
+    }
+    
+    internal class func drawMultilineText(context: CGContext, text: String, point: CGPoint, attributes: [String : AnyObject]?, constrainedToSize: CGSize, anchor: CGPoint, angleRadians: CGFloat, fonts:[UIFont])
+    {
+        let rect = text.boundingRect(with: constrainedToSize, options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
+        drawMultilineText(context: context, text: text, knownTextSize: rect.size, point: point, attributes: attributes, constrainedToSize: constrainedToSize, anchor: anchor, angleRadians: angleRadians, fonts: fonts)
     }
     
     /// - returns: An angle between 0.0 < 360.0 (not less than zero, less than 360)

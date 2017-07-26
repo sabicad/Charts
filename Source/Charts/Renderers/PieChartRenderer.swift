@@ -520,13 +520,19 @@ open class PieChartRenderer: DataRenderer
                     }
                     else if drawYInside
                     {
-                        ChartUtils.drawText(
-                            context: context,
-                            text: valueText,
-                            point: CGPoint(x: x, y: y + lineHeight / 2.0),
-                            align: .center,
-                            attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor]
-                        )
+                        if let image = pe?.sectorImage {
+                            if sliceAngle > image.size.height {
+                                ChartUtils.drawImage(context: context, image: image, x: x, y: y + lineHeight, size: CGSize(width: image.size.width, height: image.size.height))
+                            }
+                        } else {
+                            ChartUtils.drawText(
+                                context: context,
+                                text: valueText,
+                                point: CGPoint(x: x, y: y + lineHeight / 2.0),
+                                align: .center,
+                                attributes: [NSFontAttributeName: valueFont, NSForegroundColorAttributeName: valueTextColor]
+                            )
+                        }
                     }
                 }
                 

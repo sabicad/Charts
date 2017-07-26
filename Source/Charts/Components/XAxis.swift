@@ -11,6 +11,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 @objc(ChartXAxis)
 open class XAxis: AxisBase
@@ -60,6 +61,10 @@ open class XAxis: AxisBase
     /// 
     /// **default**: 1.0
     open var wordWrapWidthPercent: CGFloat = 1.0
+    
+    // added for labels attributes. Only font now supported
+    open var isLabelWithAttributes = false
+    open var multiplyFonts:[UIFont] = []
     
     public override init()
     {

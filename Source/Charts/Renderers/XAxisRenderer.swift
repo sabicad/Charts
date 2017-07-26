@@ -272,14 +272,28 @@ open class XAxisRenderer: AxisRendererBase
         anchor: CGPoint,
         angleRadians: CGFloat)
     {
-        ChartUtils.drawMultilineText(
-            context: context,
-            text: formattedLabel,
-            point: CGPoint(x: x, y: y),
-            attributes: attributes,
-            constrainedToSize: constrainedToSize,
-            anchor: anchor,
-            angleRadians: angleRadians)
+        guard let xAxis = self.axis as? XAxis else { return }
+        
+        if xAxis.isLabelWithAttributes {
+            ChartUtils.drawMultilineText(
+                context: context,
+                text: formattedLabel,
+                point: CGPoint(x: x, y: y),
+                attributes: attributes,
+                constrainedToSize: constrainedToSize,
+                anchor: anchor,
+                angleRadians: angleRadians,
+                fonts: xAxis.multiplyFonts)
+        } else {
+            ChartUtils.drawMultilineText(
+                context: context,
+                text: formattedLabel,
+                point: CGPoint(x: x, y: y),
+                attributes: attributes,
+                constrainedToSize: constrainedToSize,
+                anchor: anchor,
+                angleRadians: angleRadians)
+        }
     }
     
     open override func renderGridLines(context: CGContext)
